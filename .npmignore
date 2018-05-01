@@ -6,6 +6,7 @@ coverage/
 src/
 dist/**/*.spec.*
 fonts/
+bench/
 
 *.tgz
 npm-debug.log*
