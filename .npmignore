@@ -1,0 +1,11 @@
+node_modules/
+.nyc_output/
+.vscode/
+coverage/
+
+src/
+dist/**/*.spec.*
+fonts/
+
+*.tgz
+npm-debug.log*
