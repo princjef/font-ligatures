@@ -77,3 +77,7 @@ cause is that the font uses a type of substitution which is not yet supported.
 Want to contribute to the project? Go check out the [Contribution 
 Guide](CONTRIBUTING.md) for instructions to set up your development 
 environment, open an issue and create a pull request.
+
+[Fira Code]: https://github.com/tonsky/FiraCode
+[Iosevka]: https://be5invis.github.io/Iosevka
+[Monoid]: https://larsenwork.com/monoid
