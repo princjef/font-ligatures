@@ -29,6 +29,13 @@ test.before(t => {
                     type: fontFinder.Type.Monospace,
                     style: fontFinder.Style.Regular
                 }];
+            case 'Ubuntu Mono':
+                return [{
+                    path: path.join(__dirname, '../fonts/UbuntuMono-Regular.ttf'),
+                    weight: 400,
+                    type: fontFinder.Type.Monospace,
+                    style: fontFinder.Style.Regular
+                }];
         }
     });
 });
@@ -48,6 +55,9 @@ const iosevka = (input: string, glyphs: number[], ranges: [number, number][]) =>
 
 const monoid = (input: string, glyphs: number[], ranges: [number, number][]) =>
     ({ font: 'Monoid', input, glyphs, ranges });
+
+const ubuntu = (input: string, glyphs: number[], ranges: [number, number][]) =>
+    ({ font: 'Ubuntu Mono', input, glyphs, ranges });
 
 const firaCases: Context[] = [
     fira('abc', [133, 145, 146], []),
@@ -289,7 +299,16 @@ const monoidCases: Context[] = [
     monoid('__', [763, 764], [[0, 2]])
 ];
 
-for (const { font, input, glyphs, ranges } of [...firaCases, ...iosevkaCases, ...monoidCases]) {
+const otherCases = [
+    ubuntu('==>', [32, 32, 33], [])
+];
+
+for (const { font, input, glyphs, ranges } of [
+    ...firaCases,
+    ...iosevkaCases,
+    ...monoidCases,
+    ...otherCases
+]) {
     test(`${font}: '${input}'`, async t => {
         const inst = await load(font);
         const result = inst.findLigatures(input);
