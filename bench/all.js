@@ -19,49 +19,49 @@ setup(async () => {
 
 test('Fira Code: code.txt', (context, iteration) => {
     const line = code[iteration % code.length];
-    context.fira.findLigatures(line);
+    context.fira.findLigatureRanges(line);
     return line.length;
 });
 
 test('Fira Code: noLigatures.txt', (context, iteration) => {
     const line = noLigatures[iteration % noLigatures.length];
-    context.fira.findLigatures(line);
+    context.fira.findLigatureRanges(line);
     return line.length;
 });
 
 test('Iosevka: code.txt', (context, iteration) => {
     const line = code[iteration % code.length];
-    context.iosevka.findLigatures(line);
+    context.iosevka.findLigatureRanges(line);
     return line.length;
 });
 
 test('Iosevka: noLigatures.txt', (context, iteration) => {
     const line = noLigatures[iteration % noLigatures.length];
-    context.iosevka.findLigatures(line);
+    context.iosevka.findLigatureRanges(line);
     return line.length;
 });
 
 test('Monoid: code.txt', (context, iteration) => {
     const line = code[iteration % code.length];
-    context.monoid.findLigatures(line);
+    context.monoid.findLigatureRanges(line);
     return line.length;
 });
 
 test('Monoid: noLigatures.txt', (context, iteration) => {
     const line = noLigatures[iteration % noLigatures.length];
-    context.monoid.findLigatures(line);
+    context.monoid.findLigatureRanges(line);
     return line.length;
 });
 
 test('Ubuntu Mono: code.txt', (context, iteration) => {
     const line = code[iteration % code.length];
-    context.ubuntu.findLigatures(line);
+    context.ubuntu.findLigatureRanges(line);
     return line.length;
 });
 
 test('Ubuntu Mono: noLigatures.txt', (context, iteration) => {
     const line = noLigatures[iteration % noLigatures.length];
-    context.ubuntu.findLigatures(line);
+    context.ubuntu.findLigatureRanges(line);
     return line.length;
 });
 

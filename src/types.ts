@@ -33,4 +33,12 @@ export interface Font {
      * @param text String to search for ligatures
      */
     findLigatures(text: string): LigatureData;
+
+    /**
+     * Scans the provided text for font ligatures, returning an array of ranges
+     * where ligatures are located.
+     *
+     * @param text String to search for ligatures
+     */
+    findLigatureRanges(text: string): [number, number][];
 }
