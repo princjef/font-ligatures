@@ -33,6 +33,17 @@ class FontImpl implements Font {
             glyphIds.push(this._font.charToGlyphIndex(char));
         }
 
+        // If there are no lookup groups, there's no point looking for
+        // replacements. This gives us a minor performance boost for fonts with
+        // no ligatures
+        if (this._lookupGroups.length === 0) {
+            return {
+                inputGlyphs: glyphIds,
+                outputGlyphs: glyphIds,
+                contextRanges: []
+            };
+        }
+
         let result: number[] = glyphIds.slice();
         const individualContextRanges: [number, number][] = [];
 
