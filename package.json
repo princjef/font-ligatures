@@ -30,7 +30,8 @@
     "show-coverage": "opener ./coverage/index.html",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "prerelease": "npm run build",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "bench": "node bench/all.js"
   },
   "keywords": [
     "font",
@@ -59,12 +60,15 @@
     "@types/opentype.js": "^0.7.0",
     "@types/sinon": "^4.3.1",
     "ava": "^0.25.0",
+    "chalk": "^2.4.1",
     "codecov": "^3.0.1",
+    "columnify": "^1.5.4",
     "husky": "^0.14.3",
     "nyc": "^11.7.1",
     "opener": "^1.4.3",
     "rimraf": "^2.6.2",
     "semantic-release": "^15.1.8",
+    "simple-statistics": "^6.0.0",
     "sinon": "^4.5.0",
     "tslint": "^5.9.1",
     "tslint-config-standard": "^7.0.0",
