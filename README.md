@@ -31,12 +31,21 @@ const fontLigatures = require('font-ligatures');
 
 ### `load(name)`
 
-Loads the font with the given name, returning a Promise with a font that can be
-used to find ligature information.
+Loads the font with the given name, returning a Promise with a [Font](#font)
+that can be used to find ligature information.
 
 **Params**
 
  * `name` [*string*] - The font family of the font to load
+
+### `loadFile(path)`
+
+Loads the font at the given path, returning a Promise with a [Font](#font) that
+can be used to find ligature information.
+
+**Params**
+
+ * `path` [*string*] - Path to the file containing the font
 
 ### Font
 
