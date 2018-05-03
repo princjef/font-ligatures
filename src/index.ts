@@ -145,7 +145,17 @@ export async function load(name: string): Promise<Font> {
         throw new Error(`Font ${name} not found`);
     }
 
-    const font = await util.promisify<string, opentype.Font>(opentype.load as any)(fontInfo.path);
+    return loadFile(fontInfo.path);
+}
+
+/**
+ * Load the font at the given file path. The returned value can be used to find
+ * ligatures for the font.
+ *
+ * @param path Path to the file containing the font
+ */
+export async function loadFile(path: string): Promise<Font> {
+    const font = await util.promisify<string, opentype.Font>(opentype.load as any)(path);
     return new FontImpl(font);
 }
 
