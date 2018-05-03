@@ -309,10 +309,16 @@ for (const { font, input, glyphs, ranges } of [
     ...monoidCases,
     ...otherCases
 ]) {
-    test(`${font}: '${input}'`, async t => {
+    test(`findLigatures() > ${font}: '${input}'`, async t => {
         const inst = await load(font);
         const result = inst.findLigatures(input);
         t.deepEqual(result.outputGlyphs, glyphs);
         t.deepEqual(result.contextRanges, ranges);
+    });
+
+    test(`findLigatureRanges() > ${font}: '${input}'`, async t => {
+        const inst = await load(font);
+        const result = inst.findLigatureRanges(input);
+        t.deepEqual(result, ranges);
     });
 }

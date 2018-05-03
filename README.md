@@ -63,6 +63,11 @@ following keys:
    be rendered together to produce the ligatures in the output sequence. The
    ranges are inclusive on the left and exclusive on the right
 
+#### `findLigatureRanges(text)`
+
+Scans the provided text for font ligatures, returning an array of ranges where
+ligatures are located.
+
 **Params**
 
  * `text` [*string*] - text to search for ligatures

@@ -44,21 +44,47 @@ class FontImpl implements Font {
             };
         }
 
-        let result: number[] = glyphIds.slice();
+        const result = this._findInternal(glyphIds.slice());
+
+        return {
+            inputGlyphs: glyphIds,
+            outputGlyphs: result.sequence,
+            contextRanges: result.ranges
+        };
+    }
+
+    findLigatureRanges(text: string): [number, number][] {
+        // Short circuit the process if there are no possible ligatures in the
+        // font
+        if (this._lookupGroups.length === 0) {
+            return [];
+        }
+
+        const glyphIds: number[] = [];
+        for (const char of text) {
+            glyphIds.push(this._font.charToGlyphIndex(char));
+        }
+
+        const result = this._findInternal(glyphIds);
+
+        return result.ranges;
+    }
+
+    private _findInternal(sequence: number[]): { sequence: number[]; ranges: [number, number][]; } {
         const individualContextRanges: [number, number][] = [];
 
         for (const lookup of this._lookupGroups) {
             switch (lookup.lookupType) {
                 // https://docs.microsoft.com/en-us/typography/opentype/spec/gsub#lookuptype-6-chaining-contextual-substitution-subtable
                 case 6:
-                    for (let index = 0; index < result.length; index++) {
+                    for (let index = 0; index < sequence.length; index++) {
                         for (const table of lookup.subtables) {
                             let res: SubstitutionResult | null = null;
                             switch (table.substFormat) {
                                 case 1:
                                     res = processGsubType6Format1(
                                         table,
-                                        result,
+                                        sequence,
                                         index,
                                         this._font.tables.gsub.lookups
                                     );
@@ -66,7 +92,7 @@ class FontImpl implements Font {
                                 case 2:
                                     res = processGsubType6Format2(
                                         table,
-                                        result,
+                                        sequence,
                                         index,
                                         this._font.tables.gsub.lookups
                                     );
@@ -74,7 +100,7 @@ class FontImpl implements Font {
                                 case 3:
                                     res = processGsubType6Format3(
                                         table,
-                                        result,
+                                        sequence,
                                         index,
                                         this._font.tables.gsub.lookups
                                     );
@@ -94,11 +120,11 @@ class FontImpl implements Font {
                     break;
                 // https://docs.microsoft.com/en-us/typography/opentype/spec/gsub#lookuptype-8-reverse-chaining-contextual-single-substitution-subtable
                 case 8:
-                    for (let index = result.length - 1; index >= 0; index--) {
+                    for (let index = sequence.length - 1; index >= 0; index--) {
                         for (const table of lookup.subtables) {
                             const res = processGsubType8Format1(
                                 table,
-                                result,
+                                sequence,
                                 index
                             );
 
@@ -137,7 +163,7 @@ class FontImpl implements Font {
             }
         }
 
-        return { inputGlyphs: glyphIds, outputGlyphs: result, contextRanges };
+        return { sequence, ranges: contextRanges };
     }
 }
 
