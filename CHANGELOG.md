@@ -1,3 +1,11 @@
+<a name="1.1.0"></a>
+# [1.1.0](https://github.com/princjef/font-ligatures/compare/v1.0.0...v1.1.0) (2018-05-03)
+
+
+### Features
+
+* add option to load font from file ([400c0be](https://github.com/princjef/font-ligatures/commit/400c0be))
+
 <a name="1.0.0"></a>
 # 1.0.0 (2018-05-01)
 
