@@ -1,21 +1,20 @@
 import * as util from 'util';
-import * as createDebugNamespace from 'debug';
 import * as opentype from 'opentype.js';
 import * as fontFinder from 'font-finder';
 
-import { SubstitutionResult, Font, LigatureData } from './types';
-import { Lookup } from './tables';
+import { Font, LigatureData, FlattenedLookupTree, LookupTree } from './types';
+import mergeTrees from './merge';
+import walkTree from './walk';
 
-import processGsubType6Format1 from './processors/6-1';
-import processGsubType6Format2 from './processors/6-2';
-import processGsubType6Format3 from './processors/6-3';
-import processGsubType8Format1 from './processors/8-1';
-
-const debug = createDebugNamespace('font-ligatures:load');
+import buildTreeGsubType6Format1 from './processors/6-1';
+import buildTreeGsubType6Format2 from './processors/6-2';
+import buildTreeGsubType6Format3 from './processors/6-3';
+import buildTreeGsubType8Format1 from './processors/8-1';
+import flatten from './flatten';
 
 class FontImpl implements Font {
     private _font: opentype.Font;
-    private _lookupGroups: Lookup[];
+    private _lookupTrees: { tree: FlattenedLookupTree; processForward: boolean; }[] = [];
 
     constructor(font: opentype.Font) {
         this._font = font;
@@ -23,8 +22,41 @@ class FontImpl implements Font {
         const caltFeatures = this._font.tables.gsub.features.filter(f => f.tag === 'calt');
         const lookupIndices: number[] = caltFeatures
             .reduce((acc, val) => [...acc, ...val.feature.lookupListIndexes], []);
-        this._lookupGroups = this._font.tables.gsub.lookups
+        const lookupGroups = this._font.tables.gsub.lookups
             .filter((l, i) => lookupIndices.some(idx => idx === i));
+
+        const allLookups = this._font.tables.gsub.lookups;
+
+        for (const lookup of lookupGroups) {
+            const trees: LookupTree[] = [];
+            switch (lookup.lookupType) {
+                case 6:
+                    for (const [index, table] of lookup.subtables.entries()) {
+                        switch (table.substFormat) {
+                            case 1:
+                                trees.push(buildTreeGsubType6Format1(table, allLookups, index));
+                                break;
+                            case 2:
+                                trees.push(buildTreeGsubType6Format2(table, allLookups, index));
+                                break;
+                            case 3:
+                                trees.push(buildTreeGsubType6Format3(table, allLookups, index));
+                                break;
+                        }
+                    }
+                    break;
+                case 8:
+                    for (const [index, table] of lookup.subtables.entries()) {
+                        trees.push(buildTreeGsubType8Format1(table, index));
+                    }
+                    break;
+            }
+
+            this._lookupTrees.push({
+                tree: flatten(mergeTrees(trees)),
+                processForward: lookup.lookupType !== 8
+            });
+        }
     }
 
     findLigatures(text: string): LigatureData {
@@ -36,7 +68,7 @@ class FontImpl implements Font {
         // If there are no lookup groups, there's no point looking for
         // replacements. This gives us a minor performance boost for fonts with
         // no ligatures
-        if (this._lookupGroups.length === 0) {
+        if (this._lookupTrees.length === 0) {
             return {
                 inputGlyphs: glyphIds,
                 outputGlyphs: glyphIds,
@@ -56,7 +88,7 @@ class FontImpl implements Font {
     findLigatureRanges(text: string): [number, number][] {
         // Short circuit the process if there are no possible ligatures in the
         // font
-        if (this._lookupGroups.length === 0) {
+        if (this._lookupTrees.length === 0) {
             return [];
         }
 
@@ -73,73 +105,25 @@ class FontImpl implements Font {
     private _findInternal(sequence: number[]): { sequence: number[]; ranges: [number, number][]; } {
         const individualContextRanges: [number, number][] = [];
 
-        for (const lookup of this._lookupGroups) {
-            switch (lookup.lookupType) {
-                // https://docs.microsoft.com/en-us/typography/opentype/spec/gsub#lookuptype-6-chaining-contextual-substitution-subtable
-                case 6:
-                    for (let index = 0; index < sequence.length; index++) {
-                        for (const table of lookup.subtables) {
-                            let res: SubstitutionResult | null = null;
-                            switch (table.substFormat) {
-                                case 1:
-                                    res = processGsubType6Format1(
-                                        table,
-                                        sequence,
-                                        index,
-                                        this._font.tables.gsub.lookups
-                                    );
-                                    break;
-                                case 2:
-                                    res = processGsubType6Format2(
-                                        table,
-                                        sequence,
-                                        index,
-                                        this._font.tables.gsub.lookups
-                                    );
-                                    break;
-                                case 3:
-                                    res = processGsubType6Format3(
-                                        table,
-                                        sequence,
-                                        index,
-                                        this._font.tables.gsub.lookups
-                                    );
-                                    break;
-                            }
-
-                            // If there was a substitution performed, update
-                            // with the information with the substitution.
-                            if (res !== null) {
-                                index = res.index;
-                                individualContextRanges.push(res.contextRange);
-                                break;
-                            }
+        for (const { tree, processForward } of this._lookupTrees) {
+            for (let i = 0; i < sequence.length; i++) {
+                const index = processForward ? i : sequence.length - i - 1;
+                const result = walkTree(tree, sequence, index, index);
+                if (result) {
+                    for (let j = 0; j < result.substitutions.length; j++) {
+                        const sub = result.substitutions[j];
+                        if (sub !== null) {
+                            sequence[index + j] = sub;
                         }
                     }
 
-                    break;
-                // https://docs.microsoft.com/en-us/typography/opentype/spec/gsub#lookuptype-8-reverse-chaining-contextual-single-substitution-subtable
-                case 8:
-                    for (let index = sequence.length - 1; index >= 0; index--) {
-                        for (const table of lookup.subtables) {
-                            const res = processGsubType8Format1(
-                                table,
-                                sequence,
-                                index
-                            );
+                    individualContextRanges.push([
+                        result.contextRange[0] + index,
+                        result.contextRange[1] + index
+                    ]);
 
-                            // If there was a substitution performed, update
-                            // with the information with the substitution.
-                            if (res !== null) {
-                                index = res.index;
-                                individualContextRanges.push(res.contextRange);
-                            }
-                        }
-                    }
-
-                    break;
-                default:
-                    debug(`substitution lookup type ${(lookup as any).lookupType} is not supported yet`);
+                    i += result.length - 1;
+                }
             }
         }
 

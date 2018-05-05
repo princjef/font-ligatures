@@ -42,3 +42,37 @@ export interface Font {
      */
     findLigatureRanges(text: string): [number, number][];
 }
+
+export interface LookupTree {
+    individual: {
+        [glyphId: string]: LookupTreeEntry;
+    };
+    range: {
+        range: [number, number];
+        entry: LookupTreeEntry;
+    }[];
+}
+
+export interface LookupTreeEntry {
+    lookup?: LookupResult;
+    forward?: LookupTree;
+    reverse?: LookupTree;
+}
+
+export interface LookupResult {
+    substitutions: (number | null)[];
+    length: number;
+    index: number;
+    subIndex: number;
+    contextRange: [number, number];
+}
+
+export interface FlattenedLookupTree {
+    [glyphId: string]: FlattenedLookupTreeEntry;
+}
+
+export interface FlattenedLookupTreeEntry {
+    lookup?: LookupResult;
+    forward?: FlattenedLookupTree;
+    reverse?: FlattenedLookupTree;
+}
