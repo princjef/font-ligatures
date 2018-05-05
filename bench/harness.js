@@ -30,10 +30,13 @@ async function run(iterations = 1000) {
 
     console.log(columnify(
         tests.map(test => {
-            const chars = test.results.reduce((acc, val, index) => [
-                ...acc,
-                ...Array(test.lengths[index]).fill(val / test.lengths[index])
-            ], [])
+            const chars = test.results.map((val, index) =>
+                Array(test.lengths[index]).fill(val / test.lengths[index]));
+
+            const allChars = [];
+            for (const charArr of chars) {
+                allChars.push(...charArr);
+            }
 
             return {
                 name: chalk.bold(test.name),
@@ -42,8 +45,8 @@ async function run(iterations = 1000) {
                 '5%': chalk.cyan(stats.quantile(test.results, 0.05).toFixed(4)),
                 '50%': chalk.cyan(stats.quantile(test.results, 0.50).toFixed(4)),
                 '95%': chalk.cyan(stats.quantile(test.results, 0.95).toFixed(4)),
-                'avg (char)': chalk.magenta(stats.mean(chars).toFixed(7)),
-                'stdev (char)': chalk.magenta(stats.standardDeviation(chars).toFixed(7)),
+                'avg (char)': chalk.magenta(stats.mean(allChars).toFixed(7)),
+                'stdev (char)': chalk.magenta(stats.standardDeviation(allChars).toFixed(7)),
             };
         }),
         {

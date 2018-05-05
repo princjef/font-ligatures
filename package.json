@@ -44,6 +44,7 @@
   "dependencies": {
     "debug": "^3.1.0",
     "font-finder": "^1.0.1",
+    "lodash.clonedeep": "^4.5.0",
     "opentype.js": "^0.8.0"
   },
   "devDependencies": {
@@ -56,6 +57,7 @@
     "@semantic-release/github": "^4.2.13",
     "@semantic-release/npm": "^3.2.4",
     "@types/debug": "0.0.30",
+    "@types/lodash.clonedeep": "^4.5.3",
     "@types/node": "^8.10.10",
     "@types/opentype.js": "^0.7.0",
     "@types/sinon": "^4.3.1",
@@ -90,10 +92,10 @@
       "dist/**/*.map*"
     ],
     "check-coverage": true,
-    "lines": 90,
-    "statements": 90,
-    "functions": 90,
-    "branches": 80,
+    "lines": 85,
+    "statements": 85,
+    "functions": 85,
+    "branches": 75,
     "watermarks": {
       "lines": [
         80,

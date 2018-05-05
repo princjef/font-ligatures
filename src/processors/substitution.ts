@@ -9,8 +9,39 @@ import getCoverageGlyphIndex from './coverage';
  * @param table JSON representation of the substitution table
  * @param glyphId The index of the glpyh to find substitutions for
  */
-export default function getSubstitutionGlyph(table: SubstitutionTable, glyphId: number): number | null {
+export function getRangeSubstitutionGlyphs(table: SubstitutionTable, glyphId: [number, number]): Map<[number, number] | number, number | null> {
+    let replacementStart: number = glyphId[0];
+    let currentReplacement: number | null = getIndividualSubstitutionGlyph(table, replacementStart);
+    let search: number = glyphId[0] + 1;
+
+    const result = new Map<[number, number] | number, number | null>();
+
+    while (search < glyphId[1]) {
+        const sub = getIndividualSubstitutionGlyph(table, search);
+        if (sub !== currentReplacement) {
+            if (search - replacementStart <= 1) {
+                result.set(replacementStart, currentReplacement);
+            } else {
+                result.set([replacementStart, search], currentReplacement);
+            }
+        }
+
+        search++;
+    }
+
+    if (search - replacementStart <= 1) {
+        result.set(replacementStart, currentReplacement);
+    } else {
+        result.set([replacementStart, search], currentReplacement);
+    }
+
+    return result;
+}
+
+export function getIndividualSubstitutionGlyph(table: SubstitutionTable, glyphId: number): number | null {
     const coverageIndex = getCoverageGlyphIndex(table.coverage, glyphId);
+
+    // istanbul ignore next - invalid font
     if (coverageIndex === null) {
         return null;
     }

@@ -24,3 +24,20 @@ export default function getCoverageGlyphIndex(table: CoverageTable, glyphId: num
                 : null;
     }
 }
+
+export function listGlyphsByIndex(table: CoverageTable): { glyphId: number | [number, number]; index: number; }[] {
+    switch (table.format) {
+        case 1:
+            return table.glyphs.map((glyphId, index) => ({ glyphId, index }));
+        case 2:
+            let results: { glyphId: number | [number, number]; index: number; }[] = [];
+            for (const [index, range] of table.ranges.entries()) {
+                if (range.end === range.start) {
+                    results.push({ glyphId: range.start, index });
+                } else {
+                    results.push({ glyphId: [range.start, range.end + 1], index });
+                }
+            }
+            return results;
+    }
+}
