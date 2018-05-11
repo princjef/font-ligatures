@@ -1,3 +1,11 @@
+<a name="1.2.1"></a>
+## [1.2.1](https://github.com/princjef/font-ligatures/compare/v1.2.0...v1.2.1) (2018-05-11)
+
+
+### Performance Improvements
+
+* generate lookup tree on load ([10c7fc1](https://github.com/princjef/font-ligatures/commit/10c7fc1))
+
 <a name="1.2.0"></a>
 # [1.2.0](https://github.com/princjef/font-ligatures/compare/v1.1.1...v1.2.0) (2018-05-03)
 
