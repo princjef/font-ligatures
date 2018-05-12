@@ -1,3 +1,11 @@
+<a name="1.3.0"></a>
+# [1.3.0](https://github.com/princjef/font-ligatures/compare/v1.2.4...v1.3.0) (2018-05-12)
+
+
+### Features
+
+* **cache:** add option to cache previous results ([54cfbcd](https://github.com/princjef/font-ligatures/commit/54cfbcd))
+
 <a name="1.2.4"></a>
 ## [1.2.4](https://github.com/princjef/font-ligatures/compare/v1.2.3...v1.2.4) (2018-05-12)
 
