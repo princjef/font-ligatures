@@ -5,6 +5,7 @@ import * as fontFinder from 'font-finder';
 import { Font, LigatureData, FlattenedLookupTree, LookupTree } from './types';
 import mergeTrees from './merge';
 import walkTree from './walk';
+import mergeRange from './mergeRange';
 
 import buildTreeGsubType6Format1 from './processors/6-1';
 import buildTreeGsubType6Format2 from './processors/6-2';
@@ -114,7 +115,7 @@ class FontImpl implements Font {
     }
 
     private _findInternal(sequence: number[]): { sequence: number[]; ranges: [number, number][]; } {
-        const individualContextRanges: [number, number][] = [];
+        const ranges: [number, number][] = [];
 
         let nextLookup = this._getNextLookup(sequence, 0);
         while (nextLookup.index !== null) {
@@ -131,10 +132,11 @@ class FontImpl implements Font {
                             }
                         }
 
-                        individualContextRanges.push([
+                        mergeRange(
+                            ranges,
                             result.contextRange[0] + i,
                             result.contextRange[1] + i
-                        ]);
+                        );
 
                         // Substitutions can end up extending the search range
                         if (i + result.length >= lastGlyphIndex) {
@@ -158,10 +160,11 @@ class FontImpl implements Font {
                             }
                         }
 
-                        individualContextRanges.push([
+                        mergeRange(
+                            ranges,
                             result.contextRange[0] + i,
                             result.contextRange[1] + i
-                        ]);
+                        );
 
                         i -= result.length - 1;
                     }
@@ -171,26 +174,7 @@ class FontImpl implements Font {
             nextLookup = this._getNextLookup(sequence, nextLookup.index + 1);
         }
 
-        // Collapse context ranges
-        individualContextRanges.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-
-        const contextRanges: [number, number][] = individualContextRanges.length > 0
-            ? [individualContextRanges.shift()!]
-            : [];
-        for (const range of individualContextRanges) {
-            if (range[0] < contextRanges[contextRanges.length - 1][1]) {
-                // This overlaps with the previous range. Combine them
-                contextRanges[contextRanges.length - 1][1] = Math.max(
-                    range[1],
-                    contextRanges[contextRanges.length - 1][1]
-                );
-            } else {
-                // This is a new range. Add it to the end
-                contextRanges.push(range);
-            }
-        }
-
-        return { sequence, ranges: contextRanges };
+        return { sequence, ranges };
     }
 
     /**
