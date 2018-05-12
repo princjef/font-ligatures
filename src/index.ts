@@ -1,8 +1,9 @@
 import * as util from 'util';
 import * as opentype from 'opentype.js';
 import * as fontFinder from 'font-finder';
+import * as lru from 'lru-cache';
 
-import { Font, LigatureData, FlattenedLookupTree, LookupTree } from './types';
+import { Font, LigatureData, FlattenedLookupTree, LookupTree, Options } from './types';
 import mergeTrees from './merge';
 import walkTree from './walk';
 import mergeRange from './mergeRange';
@@ -17,9 +18,17 @@ class FontImpl implements Font {
     private _font: opentype.Font;
     private _lookupTrees: { tree: FlattenedLookupTree; processForward: boolean; }[] = [];
     private _glyphLookups: { [glyphId: string]: number[] } = {};
+    private _cache?: lru.Cache<string, LigatureData | [number, number][]>;
 
-    constructor(font: opentype.Font) {
+    constructor(font: opentype.Font, options: Required<Options>) {
         this._font = font;
+
+        if (options.cacheSize > 0) {
+            this._cache = lru({
+                max: options.cacheSize,
+                length: ((val: LigatureData | [number, number][], key: string) => key.length) as any
+            });
+        }
 
         const caltFeatures = this._font.tables.gsub.features.filter(f => f.tag === 'calt');
         const lookupIndices: number[] = caltFeatures
@@ -72,6 +81,11 @@ class FontImpl implements Font {
     }
 
     findLigatures(text: string): LigatureData {
+        const cached = this._cache && this._cache.get(text);
+        if (cached && !Array.isArray(cached)) {
+            return cached;
+        }
+
         const glyphIds: number[] = [];
         for (const char of text) {
             glyphIds.push(this._font.charToGlyphIndex(char));
@@ -89,12 +103,16 @@ class FontImpl implements Font {
         }
 
         const result = this._findInternal(glyphIds.slice());
-
-        return {
+        const finalResult: LigatureData = {
             inputGlyphs: glyphIds,
             outputGlyphs: result.sequence,
             contextRanges: result.ranges
         };
+        if (this._cache) {
+            this._cache.set(text, finalResult);
+        }
+
+        return finalResult;
     }
 
     findLigatureRanges(text: string): [number, number][] {
@@ -104,12 +122,20 @@ class FontImpl implements Font {
             return [];
         }
 
+        const cached = this._cache && this._cache.get(text);
+        if (cached) {
+            return Array.isArray(cached) ? cached : cached.contextRanges;
+        }
+
         const glyphIds: number[] = [];
         for (const char of text) {
             glyphIds.push(this._font.charToGlyphIndex(char));
         }
 
         const result = this._findInternal(glyphIds);
+        if (this._cache) {
+            this._cache.set(text, result.ranges);
+        }
 
         return result.ranges;
     }
@@ -228,7 +254,7 @@ class FontImpl implements Font {
  *
  * @param name Font family name for the font to load
  */
-export async function load(name: string): Promise<Font> {
+export async function load(name: string, options?: Options): Promise<Font> {
     // We just grab the first font variant we find for now.
     // TODO: allow users to specify information to pick a specific variant
     const [fontInfo] = await fontFinder.listVariants(name);
@@ -237,7 +263,7 @@ export async function load(name: string): Promise<Font> {
         throw new Error(`Font ${name} not found`);
     }
 
-    return loadFile(fontInfo.path);
+    return loadFile(fontInfo.path, options);
 }
 
 /**
@@ -246,9 +272,12 @@ export async function load(name: string): Promise<Font> {
  *
  * @param path Path to the file containing the font
  */
-export async function loadFile(path: string): Promise<Font> {
+export async function loadFile(path: string, options?: Options): Promise<Font> {
     const font = await util.promisify<string, opentype.Font>(opentype.load as any)(path);
-    return new FontImpl(font);
+    return new FontImpl(font, {
+        cacheSize: 0,
+        ...options
+    });
 }
 
-export { Font, LigatureData };
+export { Font, LigatureData, Options };

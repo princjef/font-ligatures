@@ -325,6 +325,48 @@ for (const { font, input, glyphs, ranges } of [
     });
 }
 
+test('findLigatures() caches successive calls correctly', async t => {
+    const font = await load('Fira Code', { cacheSize: 100 });
+    const result1 = font.findLigatures('in --> out');
+    const result2 = font.findLigatures('in --> out');
+    t.deepEqual(result1, result2);
+});
+
+test('findLigatureRanges() caches successive calls correctly', async t => {
+    const font = await load('Fira Code', { cacheSize: 100 });
+    const result1 = font.findLigatureRanges('in --> out');
+    const result2 = font.findLigatureRanges('in --> out');
+    t.deepEqual(result1, result2);
+});
+
+test('caches calls to findLigatures() after findLigatureRanges() correctly', async t => {
+    const uncached = await load('Fira Code');
+    const uncachedResult1 = uncached.findLigatureRanges('in --> out');
+    const uncachedResult2 = uncached.findLigatures('in --> out');
+
+    const font = await load('Fira Code', { cacheSize: 100 });
+    const result1 = font.findLigatureRanges('in --> out');
+    const result2 = font.findLigatures('in --> out');
+
+    t.deepEqual(result1, uncachedResult1);
+    t.deepEqual(result2, uncachedResult2);
+    t.deepEqual(result1, result2.contextRanges);
+});
+
+test('caches calls to findLigatureRanges() after findLigatures() correctly', async t => {
+    const uncached = await load('Fira Code');
+    const uncachedResult1 = uncached.findLigatures('in --> out');
+    const uncachedResult2 = uncached.findLigatureRanges('in --> out');
+
+    const font = await load('Fira Code', { cacheSize: 100 });
+    const result1 = font.findLigatures('in --> out');
+    const result2 = font.findLigatureRanges('in --> out');
+
+    t.deepEqual(result1, uncachedResult1);
+    t.deepEqual(result2, uncachedResult2);
+    t.deepEqual(result1.contextRanges, result2);
+});
+
 test('throws if the font is not found', async t => {
     try {
         await load('Nonexistant');

@@ -29,7 +29,7 @@ const fontLigatures = require('font-ligatures');
 
 ## API
 
-### `load(name)`
+### `load(name, [options])`
 
 Loads the font with the given name, returning a Promise with a [Font](#font)
 that can be used to find ligature information.
@@ -37,8 +37,13 @@ that can be used to find ligature information.
 **Params**
 
  * `name` [*string*] - The font family of the font to load
+ * `options` [*object*] - Optional configuration object containing the following
+   keys:
+    * `cacheSize` [*number*] - The amount of data from previous results to cache
+      within the parser. The size is measured by the length of the input text
+      for each call. Turned off by default.
 
-### `loadFile(path)`
+### `loadFile(path, [options])`
 
 Loads the font at the given path, returning a Promise with a [Font](#font) that
 can be used to find ligature information.
@@ -46,6 +51,11 @@ can be used to find ligature information.
 **Params**
 
  * `path` [*string*] - Path to the file containing the font
+ * `options` [*object*] - Optional configuration object containing the following
+   keys:
+    * `cacheSize` [*number*] - The amount of data from previous results to cache
+      within the parser. The size is measured by the length of the input text
+      for each call. Turned off by default.
 
 ### Font
 

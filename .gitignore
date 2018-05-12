@@ -6,3 +6,4 @@ dist/
 
 *.tgz
 npm-debug.log*
+heapdump-*

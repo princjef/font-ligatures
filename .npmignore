@@ -10,3 +10,4 @@ bench/
 
 *.tgz
 npm-debug.log*
+heapdump-*
