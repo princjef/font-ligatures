@@ -1,3 +1,11 @@
+<a name="1.2.4"></a>
+## [1.2.4](https://github.com/princjef/font-ligatures/compare/v1.2.3...v1.2.4) (2018-05-12)
+
+
+### Bug Fixes
+
+* **merge:** test and fix various issues merging lookup trees ([9d87a25](https://github.com/princjef/font-ligatures/commit/9d87a25))
+
 <a name="1.2.3"></a>
 ## [1.2.3](https://github.com/princjef/font-ligatures/compare/v1.2.2...v1.2.3) (2018-05-12)
 
