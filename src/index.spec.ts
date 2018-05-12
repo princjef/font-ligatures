@@ -36,6 +36,8 @@ test.before(t => {
                     type: fontFinder.Type.Monospace,
                     style: fontFinder.Style.Regular
                 }];
+            default:
+                return [];
         }
     });
 });
@@ -322,3 +324,12 @@ for (const { font, input, glyphs, ranges } of [
         t.deepEqual(result, ranges);
     });
 }
+
+test('throws if the font is not found', async t => {
+    try {
+        await load('Nonexistant');
+        t.fail();
+    } catch (e) {
+        t.true(e instanceof Error);
+    }
+});
