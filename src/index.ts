@@ -15,6 +15,7 @@ import flatten from './flatten';
 class FontImpl implements Font {
     private _font: opentype.Font;
     private _lookupTrees: { tree: FlattenedLookupTree; processForward: boolean; }[] = [];
+    private _glyphLookups: { [glyphId: string]: number[] } = {};
 
     constructor(font: opentype.Font) {
         this._font = font;
@@ -27,7 +28,7 @@ class FontImpl implements Font {
 
         const allLookups = this._font.tables.gsub.lookups;
 
-        for (const lookup of lookupGroups) {
+        for (const [index, lookup] of lookupGroups.entries()) {
             const trees: LookupTree[] = [];
             switch (lookup.lookupType) {
                 case 6:
@@ -52,10 +53,20 @@ class FontImpl implements Font {
                     break;
             }
 
+            const tree = flatten(mergeTrees(trees));
+
             this._lookupTrees.push({
-                tree: flatten(mergeTrees(trees)),
+                tree,
                 processForward: lookup.lookupType !== 8
             });
+
+            for (const glyphId of Object.keys(tree)) {
+                if (!this._glyphLookups[glyphId]) {
+                    this._glyphLookups[glyphId] = [];
+                }
+
+                this._glyphLookups[glyphId].push(index);
+            }
         }
     }
 
@@ -105,31 +116,63 @@ class FontImpl implements Font {
     private _findInternal(sequence: number[]): { sequence: number[]; ranges: [number, number][]; } {
         const individualContextRanges: [number, number][] = [];
 
-        for (const { tree, processForward } of this._lookupTrees) {
-            for (let i = 0; i < sequence.length; i++) {
-                const index = processForward ? i : sequence.length - i - 1;
-                const result = walkTree(tree, sequence, index, index);
-                if (result) {
-                    for (let j = 0; j < result.substitutions.length; j++) {
-                        const sub = result.substitutions[j];
-                        if (sub !== null) {
-                            sequence[index + j] = sub;
+        let nextLookup = this._getNextLookup(sequence, 0);
+        while (nextLookup.index !== null) {
+            const lookup = this._lookupTrees[nextLookup.index];
+            if (lookup.processForward) {
+                let lastGlyphIndex = nextLookup.last;
+                for (let i = nextLookup.first; i < lastGlyphIndex; i++) {
+                    const result = walkTree(lookup.tree, sequence, i, i);
+                    if (result) {
+                        for (let j = 0; j < result.substitutions.length; j++) {
+                            const sub = result.substitutions[j];
+                            if (sub !== null) {
+                                sequence[i + j] = sub;
+                            }
                         }
+
+                        individualContextRanges.push([
+                            result.contextRange[0] + i,
+                            result.contextRange[1] + i
+                        ]);
+
+                        // Substitutions can end up extending the search range
+                        if (i + result.length >= lastGlyphIndex) {
+                            lastGlyphIndex = i + result.length + 1;
+                        }
+
+                        i += result.length - 1;
                     }
+                }
+            } else {
+                // We don't need to do the lastGlyphIndex tracking here because
+                // reverse processing isn't allowed to replace more than one
+                // character at a time.
+                for (let i = nextLookup.last - 1; i >= nextLookup.first; i--) {
+                    const result = walkTree(lookup.tree, sequence, i, i);
+                    if (result) {
+                        for (let j = 0; j < result.substitutions.length; j++) {
+                            const sub = result.substitutions[j];
+                            if (sub !== null) {
+                                sequence[i + j] = sub;
+                            }
+                        }
 
-                    individualContextRanges.push([
-                        result.contextRange[0] + index,
-                        result.contextRange[1] + index
-                    ]);
+                        individualContextRanges.push([
+                            result.contextRange[0] + i,
+                            result.contextRange[1] + i
+                        ]);
 
-                    i += result.length - 1;
+                        i -= result.length - 1;
+                    }
                 }
             }
+
+            nextLookup = this._getNextLookup(sequence, nextLookup.index + 1);
         }
 
         // Collapse context ranges
-        // TODO: should we do the same for substitution ranges?
-        individualContextRanges.sort((a, b) => a[0] - b[0] || a[1] - b[0]);
+        individualContextRanges.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
 
         const contextRanges: [number, number][] = individualContextRanges.length > 0
             ? [individualContextRanges.shift()!]
@@ -148,6 +191,50 @@ class FontImpl implements Font {
         }
 
         return { sequence, ranges: contextRanges };
+    }
+
+    /**
+     * Returns the lookup and glyph range for the first lookup that might
+     * contain a match.
+     *
+     * @param sequence Input glyph sequence
+     * @param start The first input to try
+     */
+    private _getNextLookup(sequence: number[], start: number): { index: number | null; first: number; last: number; } {
+        const result: { index: number | null; first: number; last: number; } = {
+            index: null,
+            first: Infinity,
+            last: -1
+        };
+
+        // Loop through each glyph and find the first valid lookup for it
+        for (let i = 0; i < sequence.length; i++) {
+            const lookups = this._glyphLookups[sequence[i]];
+            if (!lookups) {
+                continue;
+            }
+
+            for (let j = 0; j < lookups.length; j++) {
+                const lookupIndex = lookups[j];
+                if (lookupIndex >= start) {
+                    // Update the lookup information if it's the one we're
+                    // storing or earlier than it.
+                    if (result.index === null || lookupIndex <= result.index) {
+                        result.index = lookupIndex;
+
+                        if (result.first > i) {
+                            result.first = i;
+                        }
+
+                        result.last = i + 1;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 }
 
