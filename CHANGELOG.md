@@ -1,3 +1,11 @@
+<a name="1.2.2"></a>
+## [1.2.2](https://github.com/princjef/font-ligatures/compare/v1.2.1...v1.2.2) (2018-05-12)
+
+
+### Performance Improvements
+
+* only try lookups that might result in a substitution ([e5a0b03](https://github.com/princjef/font-ligatures/commit/e5a0b03))
+
 <a name="1.2.1"></a>
 ## [1.2.1](https://github.com/princjef/font-ligatures/compare/v1.2.0...v1.2.1) (2018-05-11)
 
