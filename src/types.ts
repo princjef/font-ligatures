@@ -43,6 +43,14 @@ export interface Font {
     findLigatureRanges(text: string): [number, number][];
 }
 
+export interface Options {
+    /**
+     * Optional size of previous results to store, measured in total number of
+     * characters from input strings. Defaults to no cache (0)
+     */
+    cacheSize?: number;
+}
+
 export interface LookupTree {
     individual: {
         [glyphId: string]: LookupTreeEntry;

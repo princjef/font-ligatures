@@ -8,61 +8,206 @@ const { setup, test, run } = require('./harness');
 const code = fs.readFileSync(path.join(__dirname, 'code.txt'), 'utf8').split('\n');
 const noLigatures = fs.readFileSync(path.join(__dirname, 'no-ligatures.txt'), 'utf8').split('\n');
 
-setup(async () => {
-    return {
-        fira: await fontLigatures.loadFile(path.join(__dirname, '../fonts/FiraCode-Regular.otf')),
-        iosevka: await fontLigatures.loadFile(path.join(__dirname, '../fonts/iosevka-regular.ttf')),
-        monoid: await fontLigatures.loadFile(path.join(__dirname, '../fonts/Monoid-Regular.ttf')),
-        ubuntu: await fontLigatures.loadFile(path.join(__dirname, '../fonts/UbuntuMono-Regular.ttf')),
-    };
+const cacheSize = 10000;
+
+test('Fira Code: code', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(path.join(__dirname, '../fonts/FiraCode-Regular.otf')));
+
+    t.run((font, iteration) => {
+        const line = code[iteration % code.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-test('Fira Code: code.txt', (context, iteration) => {
-    const line = code[iteration % code.length];
-    context.fira.findLigatureRanges(line);
-    return line.length;
+test('Fira Code: no-ligatures', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(path.join(__dirname, '../fonts/FiraCode-Regular.otf')));
+
+    t.run((font, iteration) => {
+        const line = noLigatures[iteration % noLigatures.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-test('Fira Code: noLigatures.txt', (context, iteration) => {
-    const line = noLigatures[iteration % noLigatures.length];
-    context.fira.findLigatureRanges(line);
-    return line.length;
+test('Fira Code: code (cache)', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(
+            path.join(__dirname, '../fonts/FiraCode-Regular.otf'),
+            { cacheSize }
+        ));
+
+    t.run((font, iteration) => {
+        const line = code[iteration % code.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-test('Iosevka: code.txt', (context, iteration) => {
-    const line = code[iteration % code.length];
-    context.iosevka.findLigatureRanges(line);
-    return line.length;
+test('Fira Code: no-ligatures (cache)', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(
+            path.join(__dirname, '../fonts/FiraCode-Regular.otf'),
+            { cacheSize }
+        ));
+
+    t.run((font, iteration) => {
+        const line = noLigatures[iteration % noLigatures.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-test('Iosevka: noLigatures.txt', (context, iteration) => {
-    const line = noLigatures[iteration % noLigatures.length];
-    context.iosevka.findLigatureRanges(line);
-    return line.length;
+test('Iosevka: code', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(path.join(__dirname, '../fonts/iosevka-regular.ttf')));
+
+    t.run((font, iteration) => {
+        const line = code[iteration % code.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-test('Monoid: code.txt', (context, iteration) => {
-    const line = code[iteration % code.length];
-    context.monoid.findLigatureRanges(line);
-    return line.length;
+test('Iosevka: no-ligatures', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(path.join(__dirname, '../fonts/iosevka-regular.ttf')));
+
+    t.run((font, iteration) => {
+        const line = noLigatures[iteration % noLigatures.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-test('Monoid: noLigatures.txt', (context, iteration) => {
-    const line = noLigatures[iteration % noLigatures.length];
-    context.monoid.findLigatureRanges(line);
-    return line.length;
+test('Iosevka: code (cache)', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(
+            path.join(__dirname, '../fonts/iosevka-regular.ttf'),
+            { cacheSize }
+        ));
+
+    t.run((font, iteration) => {
+        const line = code[iteration % code.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-test('Ubuntu Mono: code.txt', (context, iteration) => {
-    const line = code[iteration % code.length];
-    context.ubuntu.findLigatureRanges(line);
-    return line.length;
+test('Iosevka: no-ligatures (cache)', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(
+            path.join(__dirname, '../fonts/iosevka-regular.ttf'),
+            { cacheSize }
+        ));
+
+    t.run((font, iteration) => {
+        const line = noLigatures[iteration % noLigatures.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-test('Ubuntu Mono: noLigatures.txt', (context, iteration) => {
-    const line = noLigatures[iteration % noLigatures.length];
-    context.ubuntu.findLigatureRanges(line);
-    return line.length;
+test('Monoid: code', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(path.join(__dirname, '../fonts/Monoid-Regular.ttf')));
+
+    t.run((font, iteration) => {
+        const line = code[iteration % code.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
 });
 
-run();
+test('Monoid: no-ligatures', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(path.join(__dirname, '../fonts/Monoid-Regular.ttf')));
+
+    t.run((font, iteration) => {
+        const line = noLigatures[iteration % noLigatures.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
+});
+
+test('Monoid: code (cache)', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(
+            path.join(__dirname, '../fonts/Monoid-Regular.ttf'),
+            { cacheSize }
+        ));
+
+    t.run((font, iteration) => {
+        const line = code[iteration % code.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
+});
+
+test('Monoid: no-ligatures (cache)', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(
+            path.join(__dirname, '../fonts/Monoid-Regular.ttf'),
+            { cacheSize }
+        ));
+
+    t.run((font, iteration) => {
+        const line = noLigatures[iteration % noLigatures.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
+});
+
+test('Ubuntu Mono: code', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(path.join(__dirname, '../fonts/UbuntuMono-Regular.ttf')));
+
+    t.run((font, iteration) => {
+        const line = code[iteration % code.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
+});
+
+test('Ubuntu Mono: no-ligatures', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(path.join(__dirname, '../fonts/UbuntuMono-Regular.ttf')));
+
+    t.run((font, iteration) => {
+        const line = noLigatures[iteration % noLigatures.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
+});
+
+test('Ubuntu Mono: code (cache)', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(
+            path.join(__dirname, '../fonts/UbuntuMono-Regular.ttf'),
+            { cacheSize }
+        ));
+
+    t.run((font, iteration) => {
+        const line = code[iteration % code.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
+});
+
+test('Ubuntu Mono: no-ligatures (cache)', t => {
+    t.setup(() =>
+        fontLigatures.loadFile(
+            path.join(__dirname, '../fonts/UbuntuMono-Regular.ttf'),
+            { cacheSize }
+        ));
+
+    t.run((font, iteration) => {
+        const line = noLigatures[iteration % noLigatures.length];
+        font.findLigatureRanges(line);
+        return line.length;
+    });
+});
+
+run(1000);
