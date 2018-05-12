@@ -1,3 +1,11 @@
+<a name="1.2.3"></a>
+## [1.2.3](https://github.com/princjef/font-ligatures/compare/v1.2.2...v1.2.3) (2018-05-12)
+
+
+### Performance Improvements
+
+* merge context ranges as they're found ([ae31063](https://github.com/princjef/font-ligatures/commit/ae31063))
+
 <a name="1.2.2"></a>
 ## [1.2.2](https://github.com/princjef/font-ligatures/compare/v1.2.1...v1.2.2) (2018-05-12)
 
