@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/princjef/font-ligatures/compare/v1.3.0...v1.3.1) (2018-08-01)
+
+
+### Performance Improvements
+
+* remove and update dependencies to reduce footprint ([57bd93e](https://github.com/princjef/font-ligatures/commit/57bd93e))
+
 <a name="1.3.0"></a>
 # [1.3.0](https://github.com/princjef/font-ligatures/compare/v1.2.4...v1.3.0) (2018-05-12)
 
