@@ -1,8 +1,4 @@
-import * as createDebugNamespace from 'debug';
-
 import { ClassDefTable } from '../tables';
-
-const debug = createDebugNamespace('font-ligatures:class-def');
 
 /**
  * Get the number of the class to which the glyph belongs, or null if it doesn't
@@ -25,7 +21,6 @@ export default function getGlyphClass(table: ClassDefTable, glyphId: number | [n
             }
         // https://docs.microsoft.com/en-us/typography/opentype/spec/chapter2#class-definition-table-format-1
         default:
-            debug('class def format 1 not supported yet');
             return new Map([[glyphId, null]]);
     }
 }
@@ -84,7 +79,6 @@ export function listClassGlyphs(table: ClassDefTable, index: number): (number | 
             }
             return results;
         default:
-            debug('class def format 1 not supported yet');
             return [];
     }
 }
