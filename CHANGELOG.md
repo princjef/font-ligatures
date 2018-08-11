@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/princjef/font-ligatures/compare/v1.3.1...v1.3.2) (2018-08-11)
+
+
+### Bug Fixes
+
+* **deps:** update font-finder to fix bug when listing ([8e22577](https://github.com/princjef/font-ligatures/commit/8e22577))
+
 ## [1.3.1](https://github.com/princjef/font-ligatures/compare/v1.3.0...v1.3.1) (2018-08-01)
 
 
