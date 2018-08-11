@@ -3,7 +3,7 @@ node_modules/
 .vscode/
 coverage/
 
-src/
+src/**/*.spec.*
 dist/**/*.spec.*
 fonts/
 bench/
