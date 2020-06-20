@@ -30,13 +30,12 @@ class FontImpl implements Font {
             });
         }
 
-        const caltFeatures = this._font.tables.gsub.features.filter(f => f.tag === 'calt');
+        const caltFeatures = this._font.tables.gsub && this._font.tables.gsub.features.filter(f => f.tag === 'calt') || [];
         const lookupIndices: number[] = caltFeatures
             .reduce((acc, val) => [...acc, ...val.feature.lookupListIndexes], []);
-        const lookupGroups = this._font.tables.gsub.lookups
-            .filter((l, i) => lookupIndices.some(idx => idx === i));
 
-        const allLookups = this._font.tables.gsub.lookups;
+        const allLookups = this._font.tables.gsub && this._font.tables.gsub.lookups || [];
+        const lookupGroups = allLookups.filter((l, i) => lookupIndices.some(idx => idx === i));
 
         for (const [index, lookup] of lookupGroups.entries()) {
             const trees: LookupTree[] = [];
