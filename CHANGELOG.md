@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/princjef/font-ligatures/compare/v1.3.2...v1.3.3) (2020-07-08)
+
+
+### Bug Fixes
+
+* check if font.tables.gsub is undefined ([#18](https://github.com/princjef/font-ligatures/issues/18)) ([db06c92](https://github.com/princjef/font-ligatures/commit/db06c92))
+
 ## [1.3.2](https://github.com/princjef/font-ligatures/compare/v1.3.1...v1.3.2) (2018-08-11)
 
 
