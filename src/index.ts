@@ -279,4 +279,18 @@ export async function loadFile(path: string, options?: Options): Promise<Font> {
     });
 }
 
+/**
+ * Load the font from it's binary data. The returned value can be used to find
+ * ligatures for the font.
+ *
+ * @param buffer ArrayBuffer of the font to load
+ */
+export function loadBuffer(buffer: ArrayBuffer, options?: Options): Font {
+    const font = opentype.parse(buffer);
+    return new FontImpl(font, {
+        cacheSize: 0,
+        ...options
+    });
+}
+
 export { Font, LigatureData, Options };
