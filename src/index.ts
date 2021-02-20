@@ -16,13 +16,13 @@ class FontImpl implements Font {
     private _font: opentype.Font;
     private _lookupTrees: { tree: FlattenedLookupTree; processForward: boolean; }[] = [];
     private _glyphLookups: { [glyphId: string]: number[] } = {};
-    private _cache?: lru.Cache<string, LigatureData | [number, number][]>;
+    private _cache?: lru<string, LigatureData | [number, number][]>;
 
     constructor(font: opentype.Font, options: Required<Options>) {
         this._font = font;
 
         if (options.cacheSize > 0) {
-            this._cache = lru({
+            this._cache = new lru({
                 max: options.cacheSize,
                 length: ((val: LigatureData | [number, number][], key: string) => key.length) as any
             });
