@@ -1,6 +1,4 @@
-import * as util from 'util';
 import * as opentype from 'opentype.js';
-import * as fontFinder from 'font-finder';
 import * as lru from 'lru-cache';
 
 import { Font, LigatureData, FlattenedLookupTree, LookupTree, Options } from './types';
@@ -256,7 +254,7 @@ class FontImpl implements Font {
 export async function load(name: string, options?: Options): Promise<Font> {
     // We just grab the first font variant we find for now.
     // TODO: allow users to specify information to pick a specific variant
-    const [fontInfo] = await fontFinder.listVariants(name);
+    const [fontInfo] = await import('font-finder').then(fontFinder => fontFinder.listVariants(name));
 
     if (!fontInfo) {
         throw new Error(`Font ${name} not found`);
@@ -272,8 +270,8 @@ export async function load(name: string, options?: Options): Promise<Font> {
  * @param path Path to the file containing the font
  */
 export async function loadFile(path: string, options?: Options): Promise<Font> {
-    const font = await util.promisify<string, opentype.Font>(opentype.load as any)(path);
-    return new FontImpl(font, {
+    const font = await import('util').then(util => util.promisify<string, opentype.Font | undefined>(opentype.load)(path));
+    return new FontImpl(font!, {
         cacheSize: 0,
         ...options
     });
