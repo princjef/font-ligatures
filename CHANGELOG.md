@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/princjef/font-ligatures/compare/v1.3.3...v1.4.0) (2021-03-09)
+
+
+### Features
+
+* enable usage in browser by providing font array buffer ([#22](https://github.com/princjef/font-ligatures/issues/22)) ([b8abbcd](https://github.com/princjef/font-ligatures/commit/b8abbcd))
+
 ## [1.3.3](https://github.com/princjef/font-ligatures/compare/v1.3.2...v1.3.3) (2020-07-08)
 
 
