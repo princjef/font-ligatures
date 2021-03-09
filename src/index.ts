@@ -1,6 +1,4 @@
-import * as util from 'util';
 import * as opentype from 'opentype.js';
-import * as fontFinder from 'font-finder';
 import * as lru from 'lru-cache';
 
 import { Font, LigatureData, FlattenedLookupTree, LookupTree, Options } from './types';
@@ -18,13 +16,13 @@ class FontImpl implements Font {
     private _font: opentype.Font;
     private _lookupTrees: { tree: FlattenedLookupTree; processForward: boolean; }[] = [];
     private _glyphLookups: { [glyphId: string]: number[] } = {};
-    private _cache?: lru.Cache<string, LigatureData | [number, number][]>;
+    private _cache?: lru<string, LigatureData | [number, number][]>;
 
     constructor(font: opentype.Font, options: Required<Options>) {
         this._font = font;
 
         if (options.cacheSize > 0) {
-            this._cache = lru({
+            this._cache = new lru({
                 max: options.cacheSize,
                 length: ((val: LigatureData | [number, number][], key: string) => key.length) as any
             });
@@ -256,7 +254,7 @@ class FontImpl implements Font {
 export async function load(name: string, options?: Options): Promise<Font> {
     // We just grab the first font variant we find for now.
     // TODO: allow users to specify information to pick a specific variant
-    const [fontInfo] = await fontFinder.listVariants(name);
+    const [fontInfo] = await import('font-finder').then(fontFinder => fontFinder.listVariants(name));
 
     if (!fontInfo) {
         throw new Error(`Font ${name} not found`);
@@ -272,7 +270,21 @@ export async function load(name: string, options?: Options): Promise<Font> {
  * @param path Path to the file containing the font
  */
 export async function loadFile(path: string, options?: Options): Promise<Font> {
-    const font = await util.promisify<string, opentype.Font>(opentype.load as any)(path);
+    const font = await import('util').then(util => util.promisify<string, opentype.Font | undefined>(opentype.load)(path));
+    return new FontImpl(font!, {
+        cacheSize: 0,
+        ...options
+    });
+}
+
+/**
+ * Load the font from it's binary data. The returned value can be used to find
+ * ligatures for the font.
+ *
+ * @param buffer ArrayBuffer of the font to load
+ */
+export function loadBuffer(buffer: ArrayBuffer, options?: Options): Font {
+    const font = opentype.parse(buffer);
     return new FontImpl(font, {
         cacheSize: 0,
         ...options
