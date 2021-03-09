@@ -57,6 +57,20 @@ can be used to find ligature information.
       within the parser. The size is measured by the length of the input text
       for each call. Turned off by default.
 
+### `loadBuffer(buffer, [options])`
+
+Loads the font from it's binary data, returning a [Font](#font) that
+can be used to find ligature information.
+
+**Params**
+
+ * `buffer` [*ArryaBuffer*] - Binary data of the font file as an ArrayBuffer
+ * `options` [*object*] - Optional configuration object containing the following
+   keys:
+    * `cacheSize` [*number*] - The amount of data from previous results to cache
+      within the parser. The size is measured by the length of the input text
+      for each call. Turned off by default.
+
 ### Font
 
 Object returned by `load()`. Includes the following methods:
