@@ -41,6 +41,7 @@ function getRangeGlyphClass(table: ClassDefTable.Format2, glyphId: [number, numb
                 result.set([classStart, search], currentClass);
             }
         }
+        search++;
     }
 
     if (search - classStart <= 1) {
