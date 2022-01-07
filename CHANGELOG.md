@@ -1,3 +1,11 @@
+## [1.4.1](https://github.com/princjef/font-ligatures/compare/v1.4.0...v1.4.1) (2022-01-07)
+
+
+### Bug Fixes
+
+* **build:** move to github actions ([#25](https://github.com/princjef/font-ligatures/issues/25)) ([bdd919d](https://github.com/princjef/font-ligatures/commit/bdd919d3e243639a5a4f94ea856a4c2eba9589a3))
+* **build:** switch to manual PAT for releases ([#26](https://github.com/princjef/font-ligatures/issues/26)) ([6daa0b7](https://github.com/princjef/font-ligatures/commit/6daa0b72126945dc55c2f21bf95d22dc88652ebf))
+
 # [1.4.0](https://github.com/princjef/font-ligatures/compare/v1.3.3...v1.4.0) (2021-03-09)
 
 
