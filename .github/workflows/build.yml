@@ -39,5 +39,5 @@ jobs:
         if: ${{ matrix.platform == 'ubuntu-latest' && matrix.version == '16.x' && github.ref == 'refs/heads/master' }}
         run: npm run release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
