@@ -1,6 +1,6 @@
 # font-ligatures
 
-[![Travis CI build status](https://travis-ci.org/princjef/font-ligatures.svg?branch=master)](https://travis-ci.org/princjef/font-ligatures)
+[![GitHub Actions](https://github.com/princjef/font-ligatures/workflows/Build/badge.svg)](https://github.com/princjef/font-ligatures/actions?query=workflow%3ABuild+branch%3Amaster)
 [![codecov](https://codecov.io/gh/princjef/font-ligatures/branch/master/graph/badge.svg)](https://codecov.io/gh/princjef/font-ligatures)
 [![npm version](https://img.shields.io/npm/v/font-ligatures.svg)](https://npmjs.org/package/font-ligatures)
 
